@@ -1,9 +1,7 @@
 import inquirer from "inquirer";
-import User from "../schema/TaskSchema.js";
 import Task from "../schema/TaskSchema.js";
 import chalk from "chalk";
 import ora from "ora";
-import { response } from "express";
 
 const input = async () => {
   const answers = await inquirer.prompt([
@@ -22,57 +20,61 @@ const input = async () => {
 };
 
 const askQuestion = async () => {
-  let loop = true;
-  const taskList = [];
-  let moreInput;
-  do {
-    const userInput = await input();
+  try {
+    let loop = true;
+    const taskList = [];
+    let moreInput;
+    do {
+      const userInput = await input();
 
-    const shallowCopyOfUserInput = {
-      ...userInput,
-      name: userInput.name.trim(),
-      detail: userInput.detail.trim(),
-    };
+      const shallowCopyOfUserInput = {
+        ...userInput,
+        name: userInput.name.trim(),
+        detail: userInput.detail.trim(),
+      };
 
-    taskList.push(shallowCopyOfUserInput);
+      taskList.push(shallowCopyOfUserInput);
 
-    while (true) {
-      moreInput = await inquirer.prompt({
-        name: "addMoreTask",
-        message: "do you want more questions? ",
-        type: "input",
-      });
-      moreInput = moreInput.addMoreTask.toLowerCase();
+      while (true) {
+        moreInput = await inquirer.prompt({
+          name: "addMoreTask",
+          message: "do you want more questions? ",
+          type: "input",
+        });
+        moreInput = moreInput.addMoreTask.toLowerCase();
 
-      if (moreInput === "yes") {
-        loop = true;
+        if (moreInput === "yes") {
+          loop = true;
 
-        break;
-      } else if (moreInput === "no") {
-        loop = false;
-        return taskList;
-        break;
-      } else {
-        console.log("yes or no input is  expected");
+          break;
+        } else if (moreInput === "no") {
+          loop = false;
+          return taskList;
+          break;
+        } else {
+          console.log("yes or no input is  expected");
+        }
       }
-    }
-  } while (loop);
+    } while (loop);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
-export const addTask = async () => {
-  const spinner = ora();
+ const addTask = async () => {
   try {
     const result = await askQuestion();
-
     for (let i = 0; i < result.length; i++) {
       const response = result[i];
       console.log(result[i]);
-      console.log("trying");
+      const spinner = ora("Saving").start();
       await Task.create(response);
-      process.stdout.write("task saved");
+      spinner.succeed(chalk.greenBright("task saved"));
+      spinner.stop();
     }
-    console.log("hey");
   } catch (error) {
+    spinner.fail(chalk.redBright(error));
     console.log(chalk.redBright(error));
   }
 };
+export default addTask

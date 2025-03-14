@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import ora from "ora";
 import chalk from "chalk";
 export const mongoDBConnect = async () => {
-  const spinner = ora("connectng to database").start();
+  const spinner = ora("connecting to database").start();
   try {
     await mongoose.connect(process.env.MONGODB_URI);
     spinner.succeed(chalk.greenBright("db connected"));
