@@ -26,7 +26,7 @@ const readTask = async () => {
     }
     spinner.stop();
   } catch (error) {
-    spinner.fail("something went wrong");
+    spinner.fail("something went wrong!");
     console.log(error);
     process.exit(1);
   }
